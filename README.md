@@ -10,10 +10,10 @@
 
 ## Workflow:
 
-mESC-MEF single-cell G4 CUT&Tag schematic workflow: 
+mESC-MEF G4 scCUT&Tag schematic workflow: 
 ![mESC-MEF workflow](G4_scCut&Tag_workflow_mESC-MEF-biorender.jpeg)
 
-postnatal mouse brain single-cell G4 CUT&Tag schematic workflow: 
+postnatal mouse brain G4 scCUT&Tag schematic workflow: 
 ![brain workflow](G4_scCut&Tag_workflow_mousebrain.jpg)
 
 
