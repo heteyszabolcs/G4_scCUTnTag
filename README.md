@@ -3,8 +3,10 @@
 ## Main steps includes: 
 
 * Seurat processing of G4 scCut&Tag 
-* generating cluster specific bam and bigwig files 
-* integration with _Marques et al._ scRNA-Seq data 
+* Explorative analysis and performance validation 
+* Integration with scRNA-Seq data (Bartosovic et al.)
+* Differential G4 analysis
+* cicero 
 
 ## Workflow:
 
