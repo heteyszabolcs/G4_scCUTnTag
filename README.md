@@ -10,6 +10,8 @@
 
 ## Workflow:
 
+![mESC-MEF workflow](G4_scCut&Tag_workflow_mESC-MEF-biorender.jpeg)
+
 1. _seurat_workflow.R_:
 
 parameters:
