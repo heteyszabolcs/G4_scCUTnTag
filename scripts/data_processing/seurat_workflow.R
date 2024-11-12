@@ -40,8 +40,8 @@ args = parser$parse_args()
 if (all(sapply(args, is.null))) {
   print("Script is running without sbatch.")
   res = 0.8
-  workdir = "../../results/Seurat/GFP_sorted_mousebrain/res0.8/"
-  cell_ranger = "../../data/CellRanger/GFP_sorted_mousebrain/"
+  workdir = "../../results/Seurat/unsorted_mousebrain/res0.8/"
+  cell_ranger = "../../data/CellRanger/unsorted_mousebrain/"
 } else {
   print("Script is running on cluster via bash script.")
   cell_ranger = args$cell_ranger_output
