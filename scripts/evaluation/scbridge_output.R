@@ -200,9 +200,8 @@ seurat_pred = DimPlot(
 seurat_pred
 
 scbr_g4@meta.data = scbr_g4@meta.data %>% mutate(AST_status = ifelse(Prediction == "AST", "AST", "non-AST"))
-cols = c(
-  "non-AST" = '#bdbdbd',
-  "AST" = "#de2d26")
+set3 = brewer.pal(9, "Set3")
+cols = c("AST" = set3[1], "non-AST" = set3[9])
 
 ast = DimPlot(
   object = scbr_g4,
