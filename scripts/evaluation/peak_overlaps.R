@@ -20,15 +20,16 @@ pacman::p_load(
 # helper function for upset plot
 source("../../utils/upset_plot.R")
 
+# export folder
+result_folder = "../../results/peak_overlaps/"
+
+# colors for vis
 mesc_col = "#fc9272"
 mef_col = "#9ecae1"
 npc_col = "#a1d99b"
 neuron_col = "#a1d99b"
 
 ## mESC-MEF scCut&Tag ###
-# Venn with 3 sets - bulk mESC and cluster0/1 of mESC-MEF scCnT
-result_folder = "../../results/peak_overlaps/"
-
 mesc_mef_cluster0 = fread("../../results/Seurat/mESC_MEF/cluster_spec_peaks/0_peaks.narrowPeak")
 mesc_mef_cluster0$type = "cluster0"
 mesc_mef_cluster0 = GRanges(
@@ -192,8 +193,8 @@ ggsave(
   device = "pdf"
 )
 
-# jaccard indexes
-# mESC-MEF dataset
+### jaccard indexes
+# mESC-MEF 
 peaks = list(mesc_mef_cluster0, mesc_mef_cluster1, mesc, mef)
 mesc_mef_jaccards = matrix(NA_real_, length(peaks), length(peaks))
 colnames(mesc_mef_jaccards) = c("cluster 0", "cluster 1", "bulk mESC CnT", "bulk MEF CnT")
@@ -236,6 +237,7 @@ Heatmap(
 )
 dev.off()
 
+# unsorted mouse brain
 peaks = list(unsorted_cluster0,
              unsorted_cluster1,
              neuron,
