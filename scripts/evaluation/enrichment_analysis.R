@@ -69,9 +69,12 @@ png(
 print(generate_heatmap(full))
 dev.off()
 
-# FindMarkers output
+# on FindMarkers outputs
 cl1 = fread("../../results/Seurat/unsorted_brain_res0.1-G4markers_logreg-cluster1.tsv")
 cl0 = fread("../../results/Seurat/unsorted_brain_res0.1-G4markers_logreg-cluster0.tsv")
+
+cl1 = cl1 %>% dplyr::filter(avg_log2FC > 3)
+cl0 = cl0 %>% dplyr::filter(avg_log2FC > 3)
 
 cl1 = create_go_matrix(
   create_input_fam(fc_table = cl1, background = peaks_1),
@@ -94,12 +97,16 @@ full = full %>% dplyr::select(-Term) %>% mutate_if(is.character, as.numeric)
 full = as.matrix(full)
 full = full[which(rownames(full) != "biological_process"),]
 
+output = as_tibble(full)
+output = output %>% mutate(terms = rownames(full))
+write_tsv(output, glue("{result_folder}topGO_input_findmarkers_res0.1.tsv"))
+
 pdf(
   file = glue("{result_folder}topGO_findmarkers_res0.1.pdf"),
   width = 5,
   height = 5
 )
-print(generate_heatmap(full))
+print(generate_heatmap_fm(full))
 dev.off()
 
 png(
@@ -109,6 +116,6 @@ png(
   unit = "cm",
   res = 500
 )
-print(generate_heatmap(full))
+print(generate_heatmap_fm(full))
 dev.off()
 

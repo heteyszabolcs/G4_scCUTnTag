@@ -29,7 +29,7 @@ markers_for_cl0 = FindMarkers(
   ident.1 = 0,
   ident.2 = 1,
   group.by = "seurat_clusters"
-)
+) 
 markers_for_cl0 = markers_for_cl0 %>% mutate(id = rownames(markers_for_cl0))
 markers_for_cl0 = markers_for_cl0 %>% separate(
   id,

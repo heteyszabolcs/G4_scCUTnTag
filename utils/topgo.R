@@ -92,3 +92,31 @@ generate_heatmap = function(matrix) {
   )
   hm
 }
+
+generate_heatmap_fm = function(matrix) {
+  col_fun = colorRamp2(c(1, 0.1, 0.05, 1e-2, 1e-3), c("grey", "#ece7f2", "#e5f5f9", "#99d8c9", "#2ca25f"))
+  hm = Heatmap(
+    matrix,
+    column_title = "",
+    row_title = "",
+    name = "Fisher test",
+    col = col_fun,
+    heatmap_legend_param = list(
+      title = "Fisher test",
+      at = c(1, -0.05, -0.001),
+      labels = c("not enriched", "p < 1e-3", "p < 1e-2"),
+      legend_height = unit(2, "cm")
+    ),
+    rect_gp = gpar(col = "black", lwd = 0.1),
+    show_column_dend = FALSE,
+    cluster_columns = FALSE,
+    cluster_rows = TRUE,
+    show_row_dend = FALSE,
+    heatmap_width = unit(7, "cm"),
+    heatmap_height = unit(10, "cm"),
+    row_names_gp = gpar(fontsize = 5),
+    column_names_gp = gpar(fontsize = 6),
+    column_names_rot = 90
+  )
+  hm
+}

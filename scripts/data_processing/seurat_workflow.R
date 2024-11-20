@@ -29,6 +29,7 @@ parser$add_argument("-c",
                     help = "path to output folder of Cell Ranger")
 parser$add_argument("-w", "--workdir", type = "character", help = "path of working dir")
 parser$add_argument("-r", "--res", type = "numeric", help = "cluster resolution")
+parser$add_argument("-s", "--sample", type = "character", help = "sample: mESC_MEF, unsorted, sorted")
 
 args = parser$parse_args()
 
@@ -42,11 +43,13 @@ if (all(sapply(args, is.null))) {
   res = 0.1
   workdir = "../../results/Seurat/unsorted_mousebrain/res0.1/"
   cell_ranger = "../../data/CellRanger/unsorted_mousebrain/"
+  sample = "unsorted"
 } else {
   print("Script is running on cluster via bash script.")
   cell_ranger = args$cell_ranger_output
   workdir = args$workdir
   res = args$res
+  sample = args$sample
 }
 
 print(paste0("Seurat cluster resolution: ", as.character(res)))
@@ -291,7 +294,7 @@ for (i in clusters) {
 }
 
 # plot UMAPs
-if (res == 0.1) {
+if (res == 0.1 & sample == "mESC_MEF") {
   cols = c("0" = "#8dd3c7", "1" = "#ffffb3")
   
   dim_res0.1 = DimPlot(
@@ -328,6 +331,45 @@ if (res == 0.1) {
                           height = 10,
                           dpi = 300,
                         )
+} 
+
+if (res == 0.1 & sample == "unsorted") {
+  cols = c("0" = "#addd8e", "1" = "#bdbdbd")
+  
+  dim_res0.1 = DimPlot(
+    object = seurat,
+    label = TRUE,
+    pt.size = 2,
+    label.size = 7,
+    repel = TRUE,
+    raster = TRUE
+  ) +
+    xlim(-10, 10) +
+    ylim(-10, 10) +
+    scale_colour_manual(values = cols, breaks = c("0", "1"), labels = c("cluster 0", "cluster 1")) +
+    ggtitle("") +
+    theme(
+      text = element_text(size = 25),
+      plot.title = element_text(size = 20),
+      axis.text.x = element_text(size = 25, color = "black"),
+      axis.text.y = element_text(size = 25, color = "black")
+    )
+  
+  ggsave(
+    glue("{workdir}/plots/Seurat_UMAP_res0.1.png"),
+    plot = dim_res0.1,
+    width = 10,
+    height = 10,
+    dpi = 300,
+  )
+  
+  ggsave(
+    glue("{workdir}/plots/Seurat_UMAP_res0.1.pdf"),
+    plot = dim_res0.1,
+    width = 10,
+    height = 10,
+    dpi = 300,
+  )
 } else {
   dim = DimPlot(
     object = seurat,
