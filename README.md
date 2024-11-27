@@ -27,10 +27,9 @@ mESC-MEF Seurat object:
 postnatal mouse brain G4 scCUT&Tag schematic workflow: 
 ![brain workflow](G4_scCut&Tag_workflow_mousebrain.jpg)
 
-unsorted Seurat objects: 
+unsorted Seurat object: 
 - _results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object.Rds_
-- _results/Seurat/unsorted_mousebrain/res0.8/outputs/Seurat_object.Rds_
-
+- 
 GFP sorted Seurat object:
 - _results/Seurat/GFP_sorted_mousebrain/res0.8/outputs/Seurat_object.Rds_
 
