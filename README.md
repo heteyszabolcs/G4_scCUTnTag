@@ -29,7 +29,7 @@ postnatal mouse brain G4 scCUT&Tag schematic workflow:
 
 unsorted Seurat object: 
 - _results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object.Rds_
-- 
+  
 GFP sorted Seurat object:
 - _results/Seurat/GFP_sorted_mousebrain/res0.8/outputs/Seurat_object.Rds_
 
