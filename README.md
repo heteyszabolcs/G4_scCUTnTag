@@ -21,7 +21,7 @@ Repository Structure
 mESC-MEF G4 scCUT&Tag schematic workflow: 
 ![mESC-MEF workflow](G4_scCut&Tag_workflow_mESC-MEF-biorender.jpeg)
 
-mESC-MEF Seurat objects: 
+mESC-MEF Seurat object: 
 - _results/Seurat/mESC_MEF/outputs/Seurat_object.Rds_
 
 postnatal mouse brain G4 scCUT&Tag schematic workflow: 
