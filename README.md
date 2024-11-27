@@ -14,7 +14,7 @@ Repository Structure
 * _scripts/data_processing/:_ Contains R scripts for processing raw data (CellRanger output).
 * _scripts/data_integration/:_ Includes workflows for data integration using Seurat or scBridge.
 * _scripts/evaluation/:_ Contains scripts for exploratory analysis and downstream steps.
-* _utils/: Provides helper functions used during the analysis.
+* _utils/_: Provides helper functions used during the analysis.
 
 ## Workflow:
 
@@ -22,17 +22,17 @@ mESC-MEF G4 scCUT&Tag schematic workflow:
 ![mESC-MEF workflow](G4_scCut&Tag_workflow_mESC-MEF-biorender.jpeg)
 
 mESC-MEF Seurat objects: 
-* _results/Seurat/mESC_MEF/outputs/_
+- _results/Seurat/mESC_MEF/outputs/Seurat_object.Rds_
 
 postnatal mouse brain G4 scCUT&Tag schematic workflow: 
 ![brain workflow](G4_scCut&Tag_workflow_mousebrain.jpg)
 
 unsorted Seurat objects: 
-* _results/Seurat/unsorted_mousebrain/res0.1/outputs/_
-* _results/Seurat/unsorted_mousebrain/res0.8/outputs/_
+- _results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object.Rds_
+- _results/Seurat/unsorted_mousebrain/res0.8/outputs/Seurat_object.Rds_
 
 GFP sorted Seurat object:
-* _results/Seurat/GFP_sorted_mousebrain/res0.8/outputs/_
+- _results/Seurat/GFP_sorted_mousebrain/res0.8/outputs/Seurat_object.Rds_
 
 
 ### scBridge integration
