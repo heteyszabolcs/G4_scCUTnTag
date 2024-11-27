@@ -49,6 +49,6 @@ Note: scBridge runs on a single GPU.
 
 # Data
 
-Seurat objects of the repository managed with [Git LFS](https://git-lfs.com/) and users will need to install it to retrieve the file.
+Seurat objects of the repository are managed with [Git LFS](https://git-lfs.com/) and users will need to install it to retrieve the file.
 
 GEO repository:
