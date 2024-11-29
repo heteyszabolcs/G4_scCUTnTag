@@ -73,6 +73,7 @@ dev.off()
 cl1 = fread("../../results/Seurat/unsorted_brain_res0.1-G4markers_logreg-cluster1.tsv")
 cl0 = fread("../../results/Seurat/unsorted_brain_res0.1-G4markers_logreg-cluster0.tsv")
 
+# keep strongest promoter G4 peaks
 cl1 = cl1 %>% dplyr::filter(avg_log2FC > 3)
 cl0 = cl0 %>% dplyr::filter(avg_log2FC > 3)
 
