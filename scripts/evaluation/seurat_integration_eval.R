@@ -158,7 +158,7 @@ underexpr_scrna_markers = sapply(cell_types, get_underexpr_marker)
 best_scrna_markers = sapply(cell_types, get_best_marker)
 g4_feature_plots = lapply(best_scrna_markers, create_g4_feature_plot)
 g4_feature_plots = ggarrange(plotlist = g4_feature_plots)
-expr_feature_plots = lapply(best_scrna_markers, create_g4_feature_plot)
+expr_feature_plots = lapply(best_scrna_markers, create_expr_feature_plot)
 expr_feature_plots = ggarrange(plotlist = expr_feature_plots)
 
 ggsave(

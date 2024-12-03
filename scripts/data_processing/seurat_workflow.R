@@ -41,9 +41,9 @@ args = parser$parse_args()
 if (all(sapply(args, is.null))) {
   print("Script is running without sbatch.")
   res = 0.1
-  workdir = "../../results/Seurat/unsorted_mousebrain/res0.1/"
-  cell_ranger = "../../data/CellRanger/unsorted_mousebrain/"
-  sample = "unsorted"
+  workdir = "../../results/Seurat/mESC_MEF/"
+  cell_ranger = "../../data/CellRanger/mESC_MEF/"
+  sample = "mESC_MEF"
 } else {
   print("Script is running on cluster via bash script.")
   cell_ranger = args$cell_ranger_output
@@ -295,7 +295,7 @@ for (i in clusters) {
 
 # plot UMAPs
 if (res == 0.1 & sample == "mESC_MEF") {
-  cols = c("0" = "#8dd3c7", "1" = "#ffffb3")
+  cols = c("0" = "#9ecae1", "1" = "#fc9272")
   
   dim_res0.1 = DimPlot(
     object = seurat,
