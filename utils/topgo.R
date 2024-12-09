@@ -47,10 +47,7 @@ create_go_matrix = function(genes, colname) {
 # create_input function for FindMarkers outputs
 create_input_fam = function(fc_table, background = peaks_1) {
   annotations = mm10_annotation(regions = background, seqname_col = "V1", start_col = "V2", end_col = "V3", feature_1 = "V5", feature_2 = "V5", feature_3 = "V5")
-  background = annotations %>% dplyr::filter(abs(`distanceToTSS`) < 3000) %>%
-    dplyr::filter(feature_1 > median(feature_1)) %>% 
-    pull(SYMBOL) 
-  
+
   background = annotations %>% dplyr::filter(abs(`distanceToTSS`) < 3000) %>%
     dplyr::filter(feature_1 > median(feature_1)) %>% 
     pull(SYMBOL) 
