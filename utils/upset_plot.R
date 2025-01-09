@@ -166,9 +166,9 @@ add_id = function(peak_set = peak0) {
 }
 
 # create input data frame for upset plot
-upset_input = function(peak_set_1, peak_set_2, bulk_set) {
+upset_input = function(peak_set_1, peak_set_2, bulk_set_1, bulk_set_2) {
   peak_all =
-    GenomicRanges::reduce(c(bulk_set, peak_set_1, peak_set_2))
+    GenomicRanges::reduce(c(bulk_set_1, bulk_set_2, peak_set_1, peak_set_2))
   peak_set_t = as_tibble(peak_all)
   peak_set_t = peak_set_t %>% mutate(id = paste0(seqnames, "_", start, "_", end))
   
@@ -181,9 +181,11 @@ upset_input = function(peak_set_1, peak_set_2, bulk_set) {
       peak_set_t$id %in% overlap(peak_set1 = peak_all, peak_set2 = peak_set_2)
     ),
     paste0(as.numeric(
-      peak_set_t$id %in% overlap(peak_set1 = peak_all, peak_set2 = bulk_set)
-    ))
-  ))
+      peak_set_t$id %in% overlap(peak_set1 = peak_all, peak_set2 = bulk_set_1),
+      paste0(as.numeric(
+        peak_set_t$id %in% overlap(peak_set1 = peak_all, peak_set2 = bulk_set_2)  
+    )))
+  )))
   
   input = tibble(id = peak_set_t$id,
                  category = "",

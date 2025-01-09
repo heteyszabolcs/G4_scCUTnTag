@@ -11,14 +11,17 @@ pacman::p_load(
   "zellkonverter",
   "RColorBrewer",
   "viridis",
-  "wesanderson"
+  "wesanderson",
+  "treemapify"
 )
 
 # result folder
 result_folder = "../../results/scBridge/output/"
 
 # Seurat integrated object
-g4 = readRDS("../../results/Seurat/GFP_sorted_mousebrain/res0.8/integration/outputs/G4_scRNA_integration.Rds")
+g4 = readRDS(
+  "../../results/Seurat/GFP_sorted_mousebrain/res0.8/integration/outputs/G4_scRNA_integration.Rds"
+)
 
 # read anndata objects (scBridge outputs)
 scbr_g4 = readH5AD("../../results/scBridge/output/scCutTag_gene_activity_scores-integrated.h5ad")
@@ -28,16 +31,25 @@ scbr_rna = as.Seurat(scbr_rna, counts = "X", data = NULL)
 comb = readH5AD("../../results/scBridge/output/combined.h5ad")
 comb = as.Seurat(comb, counts = "X", data = NULL)
 
+scbr_g4_unsorted_cl1 = readH5AD(
+  "../../results/scBridge/output/scCutTag_unsorted_cl1_gene_activity_scores-integrated.h5ad"
+)
+scbr_g4_unsorted_cl1 = as.Seurat(scbr_g4_unsorted_cl1, counts = "X", data = NULL)
+scbr_rna_zeisel = readH5AD("../../results/scBridge/output/scRNA_Seq-Zeisel_et_al-neuron-integrated.h5ad")
+scbr_rna_zeisel = as.Seurat(scbr_rna_zeisel, counts = "X", data = NULL)
+comb_zeisel_uns_cl1 = readH5AD("../../results/scBridge/output/combined-Zeisel_neuron_unsorted_cl1.h5ad")
+comb_zeisel_uns_cl1 = as.Seurat(comb_zeisel_uns_cl1, counts = "X", data = NULL)
+
 # scBridge output tables
 # rel = fread("../../results/scBridge/output/scbridge_reliability.csv")
 # pred = fread("../../results/scBridge/output/scbridge_predictions.csv", header = TRUE)
 
-scbr_rna@meta.data = scbr_rna@meta.data %>% 
-  mutate(CellType = str_replace_all(CellType, pattern = "Astrocytes", replacement = "AST")) %>% 
+scbr_rna@meta.data = scbr_rna@meta.data %>%
+  mutate(CellType = str_replace_all(CellType, pattern = "Astrocytes", replacement = "AST")) %>%
   mutate(CellType = str_replace_all(CellType, pattern = "Oligodendrocytes", replacement = "MOL"))
 
-scbr_g4@meta.data = scbr_g4@meta.data %>% 
-  mutate(Prediction = str_replace_all(Prediction, pattern = "Astrocytes", replacement = "AST")) %>% 
+scbr_g4@meta.data = scbr_g4@meta.data %>%
+  mutate(Prediction = str_replace_all(Prediction, pattern = "Astrocytes", replacement = "AST")) %>%
   mutate(Prediction = str_replace_all(Prediction, pattern = "Oligodendrocytes", replacement = "MOL"))
 
 glue(
@@ -46,20 +58,29 @@ glue(
 )
 
 glue(
-  "Av. reliability of AST: {as.character(scbr_g4@meta.data %>% dplyr::filter(Prediction == 'AST') %>% pull('Reliability') %>% 
+  "Av. reliability of AST: {as.character(scbr_g4@meta.data %>% dplyr::filter(Prediction == 'AST') %>% pull('Reliability') %>%
   mean %>% round(2))}"
 )
 
 glue(
-  "# of reliable cells: {as.character(scbr_g4@meta.data %>% dplyr::filter(Reliability > 0.9) %>% rownames %>% 
-  length)} 
+  "# of reliable cells: {as.character(scbr_g4@meta.data %>% dplyr::filter(Reliability > 0.9) %>% rownames %>%
+  length)}
   # of all cells: {as.character(dim(scbr_g4@meta.data)[1])}"
 )
 
+### scBridge integration of sorted G4 scCUT&Tag and Bartosovic scRNA-Seq ###
 # Seurat UMAPs
 set3 = brewer.pal(8, "Set3")
-cols = c('AST'=set3[1],'COP-NFOL'=set3[2],'MOL'=set3[3],'OPC'=set3[4],
-         'OEC'=set3[5],'VEC'=set3[6],'VLMC'=set3[7], 'Pericytes'=set3[8])
+cols = c(
+  'AST' = set3[1],
+  'COP-NFOL' = set3[2],
+  'MOL' = set3[3],
+  'OPC' = set3[4],
+  'OEC' = set3[5],
+  'VEC' = set3[6],
+  'VLMC' = set3[7],
+  'Pericytes' = set3[8]
+)
 
 # cell types
 scbr_rna_pred = DimPlot(
@@ -68,10 +89,19 @@ scbr_rna_pred = DimPlot(
   label = FALSE,
   pt.size = 2,
   label.size = 7,
-  raster = TRUE,
+  raster = FALSE,
   repel = TRUE,
   cols = cols,
-  order = c('Pericytes', 'VLMC', 'VEC', 'COP-NFOL', 'OPC', 'OEC', 'MOL', 'AST')
+  order = c(
+    'Pericytes',
+    'VLMC',
+    'VEC',
+    'COP-NFOL',
+    'OPC',
+    'OEC',
+    'MOL',
+    'AST'
+  )
 ) +
   xlim(-12, 25) +
   ylim(-20, 20) +
@@ -86,15 +116,24 @@ scbr_rna_pred = DimPlot(
   )
 scbr_rna_pred
 
-scbr_g4@meta.data = scbr_g4@meta.data %>% 
-  mutate(Prediction = as.character(Prediction)) %>% 
-  mutate(Prediction = ifelse(str_detect(Prediction, "Novel"), "unreliable", Prediction)) %>% 
+scbr_g4@meta.data = scbr_g4@meta.data %>%
+  mutate(Prediction = as.character(Prediction)) %>%
+  mutate(Prediction = ifelse(str_detect(Prediction, "Novel"), "unreliable", Prediction)) %>%
   mutate(Prediction = as.factor(Prediction))
 
-cols = c('AST'=set3[1],'COP-NFOL'=set3[2],'MOL'=set3[3],'OPC'=set3[4],
-         'OEC'=set3[5],'VEC'=set3[6],'VLMC'=set3[7], 'Pericytes'=set3[8], 'unreliable'='#f0f0f0')
-         
-# scBridge prediction score
+cols = c(
+  'AST' = set3[1],
+  'COP-NFOL' = set3[2],
+  'MOL' = set3[3],
+  'OPC' = set3[4],
+  'OEC' = set3[5],
+  'VEC' = set3[6],
+  'VLMC' = set3[7],
+  'Pericytes' = set3[8],
+  'unreliable' = '#f0f0f0'
+)
+
+# predicted labels by scBridge
 scbr_g4_pred = DimPlot(
   object = scbr_g4,
   group.by = "Prediction",
@@ -102,9 +141,19 @@ scbr_g4_pred = DimPlot(
   pt.size = 2,
   label.size = 7,
   repel = TRUE,
-  raster = TRUE,
+  raster = FALSE,
   cols = cols,
-  order = c('Pericytes', 'VLMC', 'VEC', 'COP-NFOL', 'OPC', 'OEC', 'MOL', 'AST', 'unreliable')
+  order = c(
+    'Pericytes',
+    'VLMC',
+    'VEC',
+    'COP-NFOL',
+    'OPC',
+    'OEC',
+    'MOL',
+    'AST',
+    'unreliable'
+  )
 ) +
   xlim(-12, 25) +
   ylim(-20, 20) +
@@ -120,7 +169,9 @@ scbr_g4_pred = DimPlot(
 scbr_g4_pred
 
 # scBridge reliability
-rel = FeaturePlot(object = scbr_g4, features = 'Reliability', raster = TRUE) +
+rel = FeaturePlot(object = scbr_g4,
+                  features = 'Reliability',
+                  raster = FALSE) +
   scale_color_viridis() +
   xlim(-12, 25) +
   ylim(-20, 20) +
@@ -135,6 +186,7 @@ rel = FeaturePlot(object = scbr_g4, features = 'Reliability', raster = TRUE) +
   )
 rel
 
+# visualize Seurat prediction scores
 g4@meta.data = g4@meta.data %>% rownames_to_column(., var = "cell_id")
 scbr_g4@meta.data = scbr_g4@meta.data %>% rownames_to_column(., var = "cell_id")
 scbr_g4@meta.data = scbr_g4@meta.data %>% left_join(., g4@meta.data, by = "cell_id")
@@ -151,7 +203,9 @@ scbr_g4@meta.data = scbr_g4@meta.data %>%
     Seurat_pred_score = pred_max_score
   )
 
-seurat_pred_score = FeaturePlot(object = scbr_g4, features = 'Seurat_pred_score', raster = TRUE) +
+seurat_pred_score = FeaturePlot(object = scbr_g4,
+                                features = 'Seurat_pred_score',
+                                raster = FALSE) +
   scale_color_viridis() +
   xlim(-12, 25) +
   ylim(-20, 20) +
@@ -166,14 +220,32 @@ seurat_pred_score = FeaturePlot(object = scbr_g4, features = 'Seurat_pred_score'
   )
 seurat_pred_score
 
-scbr_g4@meta.data = scbr_g4@meta.data %>% 
-  mutate(Seurat_prediction = 
-           str_replace_all(Seurat_prediction, pattern = "Astrocytes", replacement = "AST")) %>% 
-  mutate(Seurat_prediction = 
-           str_replace_all(Seurat_prediction, pattern = "Oligodendrocytes", replacement = "MOL"))
+scbr_g4@meta.data = scbr_g4@meta.data %>%
+  mutate(Seurat_prediction =
+           str_replace_all(
+             Seurat_prediction,
+             pattern = "Astrocytes",
+             replacement = "AST"
+           )) %>%
+  mutate(
+    Seurat_prediction =
+      str_replace_all(
+        Seurat_prediction,
+        pattern = "Oligodendrocytes",
+        replacement = "MOL"
+      )
+  )
 
-cols = c('AST'=set3[1],'COP-NFOL'=set3[2],'MOL'=set3[3],'OPC'=set3[4],
-         'OEC'=set3[5],'VEC'=set3[6],'VLMC'=set3[7], 'Pericytes'=set3[8])
+cols = c(
+  'AST' = set3[1],
+  'COP-NFOL' = set3[2],
+  'MOL' = set3[3],
+  'OPC' = set3[4],
+  'OEC' = set3[5],
+  'VEC' = set3[6],
+  'VLMC' = set3[7],
+  'Pericytes' = set3[8]
+)
 
 seurat_pred = DimPlot(
   object = scbr_g4,
@@ -182,9 +254,18 @@ seurat_pred = DimPlot(
   pt.size = 2,
   label.size = 7,
   repel = TRUE,
-  raster = TRUE,
+  raster = FALSE,
   cols = cols,
-  order = c('Pericytes', 'VLMC', 'VEC', 'COP-NFOL', 'OPC', 'OEC', 'MOL', 'AST')
+  order = c(
+    'Pericytes',
+    'VLMC',
+    'VEC',
+    'COP-NFOL',
+    'OPC',
+    'OEC',
+    'MOL',
+    'AST'
+  )
 ) +
   xlim(-12, 25) +
   ylim(-20, 20) +
@@ -210,7 +291,7 @@ ast = DimPlot(
   pt.size = 2,
   label.size = 7,
   repel = TRUE,
-  raster = TRUE,
+  raster = FALSE,
   order = c("AST", "non-AST")
 ) +
   xlim(-12, 25) +
@@ -236,13 +317,11 @@ ggsave(
 )
 
 # experimental system (modality)
-comb@meta.data = comb@meta.data %>% 
-  mutate(Domain = as.character(Domain)) %>% 
-  mutate(Domain = ifelse(str_detect(Domain, "scCutTag_"), "G4 scCut&Tag", 
-                             Domain)) %>% 
-  mutate(Domain = ifelse(str_detect(Domain, "Bartosovic"), "scRNA-Seq", 
-                             Domain)) %>% 
-  mutate(Domain = as.character(Domain)) 
+comb@meta.data = comb@meta.data %>%
+  mutate(Domain = as.character(Domain)) %>%
+  mutate(Domain = ifelse(str_detect(Domain, "scCutTag_"), "G4 scCut&Tag", Domain)) %>%
+  mutate(Domain = ifelse(str_detect(Domain, "Bartosovic"), "scRNA-Seq", Domain)) %>%
+  mutate(Domain = as.character(Domain))
 
 domain = DimPlot(
   object = comb,
@@ -251,7 +330,7 @@ domain = DimPlot(
   pt.size = 2,
   label.size = 7,
   repel = TRUE,
-  raster = TRUE,
+  raster = FALSE,
   alpha = 0.1
 ) +
   xlim(-12, 25) +
@@ -269,7 +348,14 @@ domain = DimPlot(
 domain
 
 umaps = ggarrange(
-  plotlist = list(scbr_rna_pred, scbr_g4_pred, rel, domain, seurat_pred_score, seurat_pred),
+  plotlist = list(
+    scbr_rna_pred,
+    scbr_g4_pred,
+    rel,
+    domain,
+    seurat_pred_score,
+    seurat_pred
+  ),
   ncol = 2,
   nrow = 3
 )
@@ -283,8 +369,14 @@ ggsave(
 
 featureplots = list()
 genes = c("Pygb", "Pitpnc1", "Gpam", "Nwd1")
-for(gene in genes) {
-  plot = FeaturePlot(object = scbr_g4, features = gene, order = TRUE, reduction = "X_umap", pt.size = 2) +
+for (gene in genes) {
+  plot = FeaturePlot(
+    object = scbr_g4,
+    features = gene,
+    order = TRUE,
+    reduction = "X_umap",
+    pt.size = 2
+  ) +
     #scale_color_gradient2(low = "#f0f0f0", mid = "#f0f0f0", high = "red") +
     scale_color_viridis() +
     xlim(-12, 25) +
@@ -301,11 +393,9 @@ for(gene in genes) {
   featureplots[[gene]] = plot
 }
 
-ast_featureplotes = ggarrange(
-  plotlist = featureplots,
-  ncol = 2,
-  nrow = 2
-)
+ast_featureplotes = ggarrange(plotlist = featureplots,
+                              ncol = 2,
+                              nrow = 2)
 
 ggsave(
   glue("{result_folder}Seurat_UMAPs-AST_spec_G4_markers.pdf"),
@@ -317,9 +407,15 @@ ggsave(
 
 featureplots_rna = list()
 genes = c("Pygb", "Pitpnc1", "Gpam", "Nwd1")
-for(gene in genes) {
-  plot = FeaturePlot(object = scbr_rna, features = gene, 
-                     order = FALSE, raster = TRUE, reduction = "X_umap", pt.size = 2) +
+for (gene in genes) {
+  plot = FeaturePlot(
+    object = scbr_rna,
+    features = gene,
+    order = FALSE,
+    raster = TRUE,
+    reduction = "X_umap",
+    pt.size = 2
+  ) +
     #scale_color_gradient2(low = "#f0f0f0", mid = "#f0f0f0", high = "red") +
     scale_color_viridis() +
     xlim(-12, 25) +
@@ -336,20 +432,226 @@ for(gene in genes) {
   featureplots_rna[[gene]] = plot
 }
 
-ast_featureplotes_rna = ggarrange(
-  plotlist = featureplots_rna,
-  ncol = 2,
-  nrow = 2
-)
+ast_featureplotes_rna = ggarrange(plotlist = featureplots_rna,
+                                  ncol = 2,
+                                  nrow = 2)
 
 ggsave(
-  glue("{result_folder}Seurat_UMAPs-AST_spec_G4_markers-RNA_level.pdf"),
+  glue(
+    "{result_folder}Seurat_UMAPs-AST_spec_G4_markers-RNA_level.pdf"
+  ),
   plot = ast_featureplotes_rna,
   width = 18,
   height = 18,
   device = "pdf"
 )
 
+### scBridge integration of unsorted G4 scCUT&Tag (cluster 1) and Zeisel neuron scRNA-Seq ###
+# cell types
+cols2 = c(
+  'amygdala' = "#fc9272",
+  'cerebellum' = '#3182bd',
+  'cortex1' = "#a1d99b",
+  'cortex2' = "#31a354",
+  'cortex3' = "#006d2c",
+  "drg" = "#8c96c6",
+  "enteric" = "#feb24c",
+  "hippocampus" = "#ffffb2",
+  "hypothalamus" = "#8c2d04",
+  "medulla" = "#deebf7",
+  "midbraindorsal" = "#e5f5e0",
+  "midbrainventral" = "#636363",
+  "olfactory" = "#016450",
+  "pons" = "#c51b8a",
+  "striatumdorsal" = "#e31a1c",
+  "striatumventral" = "#9ecae1",
+  "sympathetic" = "#8856a7",
+  "thalamus" = "#810f7c"
+)
 
+scbr_rna_zeisel_pred = DimPlot(
+  object = scbr_rna_zeisel,
+  group.by = "CellType",
+  label = FALSE,
+  pt.size = 0.5,
+  label.size = 7,
+  raster = FALSE,
+  repel = TRUE,
+  cols = cols2
+) +
+  labs(color = "neuron type") +
+  xlim(-10, 20) +
+  ylim(-10, 20) +
+  ggtitle("Cell type (scRNA-Seq)") +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  theme(
+    text = element_text(size = 10),
+    plot.title = element_text(size = 20),
+    axis.title.x = element_text(size = 25),
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 25, color = "black"),
+    axis.text.y = element_text(size = 25, color = "black")
+  )
+scbr_rna_zeisel_pred
 
+# predicted labels by scBridge
+cols3 = c(
+  'Novel (Most Unreliable)' = '#f0f0f0',
+  'amygdala' = "#fc9272",
+  'cerebellum' = '#3182bd',
+  'cortex1' = "#a1d99b",
+  'cortex2' = "#31a354",
+  'cortex3' = "#006d2c",
+  "drg" = "#8c96c6",
+  "enteric" = "#feb24c",
+  "hippocampus" = "#ffffb2",
+  "hypothalamus" = "#8c2d04",
+  "medulla" = "#deebf7",
+  "midbraindorsal" = "#e5f5e0",
+  "midbrainventral" = "#636363",
+  "olfactory" = "#016450",
+  "pons" = "#c51b8a",
+  "striatumdorsal" = "#e31a1c",
+  "striatumventral" = "#9ecae1",
+  "sympathetic" = "#8856a7",
+  "thalamus" = "#810f7c"
+)
 
+scbr_g4_unsorted_cl1_pred = DimPlot(
+  object = scbr_g4_unsorted_cl1,
+  group.by = "Prediction",
+  label = FALSE,
+  pt.size = 0.5,
+  label.size = 7,
+  repel = TRUE,
+  raster = FALSE,
+  cols = cols3
+) +
+  labs(color = "pred. neuron type") +
+  xlim(-10, 20) +
+  ylim(-10, 20) +
+  ggtitle("Prediction") +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  theme(
+    text = element_text(size = 10),
+    plot.title = element_text(size = 20),
+    axis.title.x = element_text(size = 25),
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 25, color = "black"),
+    axis.text.y = element_text(size = 25, color = "black")
+  )
+scbr_g4_unsorted_cl1_pred
+
+# scBridge reliability
+scbr_g4_unsorted_cl1_rel = FeaturePlot(object = scbr_g4_unsorted_cl1,
+                                       features = 'Reliability',
+                                       raster = FALSE) +
+  scale_color_viridis() +
+  xlim(-10, 20) +
+  ylim(-10, 20) +
+  ggtitle("Reliability") +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  theme(
+    text = element_text(size = 10),
+    plot.title = element_text(size = 20),
+    axis.title.x = element_text(size = 25),
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 25, color = "black"),
+    axis.text.y = element_text(size = 25, color = "black")
+  )
+scbr_g4_unsorted_cl1_rel
+
+# experimental system (modality)
+comb_zeisel_uns_cl1@meta.data = comb_zeisel_uns_cl1@meta.data %>%
+  mutate(Domain = as.character(Domain)) %>%
+  mutate(Domain = ifelse(
+    str_detect(Domain, "G4 scCut&Tag"),
+    "G4 scCut&Tag (unsorted, cl 1)",
+    Domain
+  )) %>%
+  mutate(Domain = ifelse(
+    str_detect(Domain, "scRNA_Seq"),
+    "neuron scRNA_Seq (Zeisel et al.)",
+    Domain
+  )) %>%
+  mutate(Domain = as.character(Domain))
+
+domain_unsorted_cl1 = DimPlot(
+  object = comb_zeisel_uns_cl1,
+  group.by = "Domain",
+  label = FALSE,
+  pt.size = 0.5,
+  label.size = 7,
+  repel = TRUE,
+  raster = FALSE,
+  alpha = 1
+) +
+  xlim(-10, 20) +
+  ylim(-10, 20) +
+  ggtitle("Modality") +
+  scale_fill_manual(values = c("#fc9272", "#a6bddb")) +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  theme(
+    text = element_text(size = 10),
+    plot.title = element_text(size = 20),
+    axis.title.x = element_text(size = 25),
+    axis.title.y = element_text(size = 25),
+    axis.text.x = element_text(size = 25, color = "black"),
+    axis.text.y = element_text(size = 25, color = "black")
+  )
+domain_unsorted_cl1
+
+umaps_unsorted_int = ggarrange(
+  plotlist = list(
+    scbr_rna_zeisel_pred,
+    scbr_g4_unsorted_cl1_pred,
+    domain_unsorted_cl1,
+    scbr_g4_unsorted_cl1_rel
+  ),
+  ncol = 2,
+  nrow = 2
+)
+umaps_unsorted_int
+ggsave(
+  glue("{result_folder}Seurat_UMAPs-unsorted_cl1_int.pdf"),
+  plot = umaps_unsorted_int,
+  width = 18,
+  height = 18,
+  device = "pdf"
+)
+
+meta = scbr_g4_unsorted_cl1@meta.data
+unsorted_int_preds = meta %>%
+  mutate(
+    Prediction = case_when(
+      Prediction == "Novel (Most Unreliable)" ~ "unreliable",
+      str_detect(Prediction, "cortex") ~ "cortex",
+      Prediction == "drg" ~ "dorsal root ganglia",
+      TRUE ~ as.character(Prediction)
+    )
+  ) %>%
+  group_by(Prediction) %>% count() %>%
+  rename("count" = n) %>%
+  mutate(log_count = log2(count))
+
+# visualizing the predicted cell types of unsorted cluster 1
+ggplot(unsorted_int_preds,
+       aes(area = log_count, fill = log_count, label = Prediction)) +
+  geom_treemap() +
+  geom_treemap_text(colour = "white",
+                    place = "centre",
+                    size = 15) +
+  labs(fill = "log2 count") +
+  scale_fill_viridis_c()
+
+ggsave(
+  glue("{result_folder}tree_plot-unsorted_cl1_predictions.pdf"),
+  plot = last_plot(),
+  width = 6,
+  height = 6,
+  device = "pdf"
+)
