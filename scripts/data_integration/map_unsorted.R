@@ -194,6 +194,32 @@ ggsave(
   height = 6
 )
 
+FeaturePlot(
+  sorted,
+  reduction = "umap",
+  features = "predicted.seurat_clusters.score",
+  label = FALSE,
+  label.size = 3,
+  repel = TRUE
+) +
+  scale_colour_gradientn(colours = rev(brewer.pal(n = 11, name = "RdBu"))) +
+  labs(
+    title = "predicted unsorted labels on GFP+ UMAP",
+    x = "UMAP_1",
+    y = "UMAP_2",
+    fill = NULL
+  ) +
+  xlim(-5, 8) +
+  ylim(-5, 5) 
+
+ggsave(
+  glue("{result_folder}MapQuery-sorted_to_unsorted-predscore_UMAP.pdf"),
+  plot = last_plot(),
+  device = "pdf",
+  width = 7,
+  height = 6
+)
+
 set3 = brewer.pal(4, "Set3")
 cols = c("0"=set3[4], "1"=set3[3], "2"=set3[2], "3"=set3[1])
 p2_2 = DimPlot(

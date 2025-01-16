@@ -11,7 +11,8 @@ pacman::p_load(
   "cowplot",
   "ggpubr",
   "circlize",
-  "ComplexHeatmap"
+  "ComplexHeatmap",
+  "RColorBrewer"
 )
 
 # helper functions for feature plot visualizations
@@ -33,10 +34,10 @@ markers = read_tsv(glue("{workdir}/outputs/scRNA-Seq-FindAllMarkers_output.tsv")
 # UMAP
 pred_umap = DimPlot(
   g4,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   repel = TRUE,
-  raster = TRUE,
+  raster = FALSE,
   group.by = "pred_cell_type"
 ) +
   scale_color_brewer(palette = "Pastel1") +
@@ -179,7 +180,7 @@ ggsave(
 
 g4_feature_plots = lapply(underexpr_scrna_markers, create_g4_feature_plot)
 g4_feature_plots = ggarrange(plotlist = g4_feature_plots)
-expr_feature_plots = lapply(underexpr_scrna_markers, create_g4_feature_plot)
+expr_feature_plots = lapply(underexpr_scrna_markers, create_expr_feature_plot)
 expr_feature_plots = ggarrange(plotlist = expr_feature_plots)
 
 ggsave(
@@ -267,10 +268,10 @@ ggsave(
 ## UMAP dimension plots
 g4_umap = DimPlot(
   g4,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   repel = TRUE,
-  raster = TRUE
+  raster = FALSE
 ) +
   scale_color_brewer(palette = "Pastel1") +
   xlim(-15, 15) +
@@ -284,11 +285,11 @@ g4_umap = DimPlot(
   )
 rna_umap = DimPlot(
   rna,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   group.by = 'cell_type',
   repel = TRUE,
-  raster = TRUE
+  raster = FALSE
 ) +
   scale_color_brewer(palette = "Set3") +
   xlim(-15, 15) +
@@ -303,12 +304,12 @@ rna_umap = DimPlot(
 
 coembed_cells = DimPlot(
   coembed,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   group.by = 'cell_type',
   repel = TRUE,
   na.value = "grey50",
-  raster = TRUE
+  raster = FALSE
 ) +
   scale_color_brewer(palette = "Pastel1") +
   xlim(-15, 15) +
@@ -323,13 +324,13 @@ coembed_cells = DimPlot(
 
 coembed_cells2 = DimPlot(
   coembed,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   group.by = 'cell_type',
   repel = TRUE,
   label = TRUE,
   na.value = "grey50",
-  raster = TRUE
+  raster = FALSE
 ) +
   scale_color_brewer(palette = "Pastel1") +
   xlim(-15, 15) +
@@ -353,11 +354,11 @@ ggsave(
 
 coembed_clusters = DimPlot(
   coembed,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   group.by = 'seurat_clusters',
   repel = TRUE,
-  raster = TRUE
+  raster = FALSE
 ) +
   scale_color_brewer(palette = "Pastel1") +
   xlim(-15, 15) +
@@ -372,12 +373,12 @@ coembed_clusters = DimPlot(
 
 coembed_experiments = DimPlot(
   coembed,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   group.by = 'data_type',
   repel = TRUE,
   na.value = "grey50",
-  raster = TRUE
+  raster = FALSE
 ) +
   scale_colour_manual(values = c("#fc9272", "#9ecae1")) +
   xlim(-15, 15) +
@@ -392,11 +393,11 @@ coembed_experiments = DimPlot(
 
 coembed_predcelltype = DimPlot(
   coembed,
-  pt.size = 2,
-  label.size = 7,
+  pt.size = 0.5,
+  label.size = 2,
   group.by = 'pred_cell_type',
   repel = TRUE,
-  raster = TRUE
+  raster = FALSE
 ) +
   scale_color_brewer(palette = "Pastel1") +
   xlim(-15, 15) +
@@ -412,11 +413,11 @@ coembed_predcelltype = DimPlot(
 cells = coembed@meta.data %>% dplyr::filter(data_type == "G4 scCut&Tag") %>% rownames
 coembed_predscore = FeaturePlot(
   coembed,
-  pt.size = 2,
+  pt.size = 0.5,
   cells = cells,
-  label.size = 7,
+  label.size = 2,
   features = 'pred_max_score',
-  raster = TRUE
+  raster = FALSE
 ) +
   xlim(-15, 15) +
   ylim(-15, 15) +

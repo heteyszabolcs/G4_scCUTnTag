@@ -12,11 +12,16 @@ pacman::p_load(
   "RColorBrewer",
   "viridis",
   "wesanderson",
-  "treemapify"
+  "treemapify",
+  "ComplexHeatmap",
+  "circlize"
 )
 
 # result folder
 result_folder = "../../results/scBridge/output/"
+
+# helper function for cluster overlap analysis
+source("../../utils/overlap_score.R")
 
 # Seurat integrated object
 g4 = readRDS(
@@ -24,13 +29,15 @@ g4 = readRDS(
 )
 
 # read anndata objects (scBridge outputs)
-scbr_g4 = readH5AD("../../results/scBridge/output/scCutTag_gene_activity_scores-integrated.h5ad")
+# Bartosovic - GFP sorted G4 scCUT&Tag integration
+scbr_g4 = readH5AD("../../results/scBridge/output/scCutTag_GFPsorted_gene_activity_scores-integrated.h5ad")
 scbr_g4 = as.Seurat(scbr_g4, counts = "X", data = NULL)
-scbr_rna = readH5AD("../../results/scBridge/output/Bartosovic_scRNA-Seq-integrated.h5ad")
+scbr_rna = readH5AD("../../results/scBridge/output/scRNA_Seq-Bartosovic-integrated.h5ad")
 scbr_rna = as.Seurat(scbr_rna, counts = "X", data = NULL)
-comb = readH5AD("../../results/scBridge/output/combined.h5ad")
+comb = readH5AD("../../results/scBridge/output/combined-Bartosovic_GFPsorted.h5ad")
 comb = as.Seurat(comb, counts = "X", data = NULL)
 
+# Zeisel - unsorted (cluster1) G4 scCUT&Tag integration
 scbr_g4_unsorted_cl1 = readH5AD(
   "../../results/scBridge/output/scCutTag_unsorted_cl1_gene_activity_scores-integrated.h5ad"
 )
@@ -41,8 +48,8 @@ comb_zeisel_uns_cl1 = readH5AD("../../results/scBridge/output/combined-Zeisel_ne
 comb_zeisel_uns_cl1 = as.Seurat(comb_zeisel_uns_cl1, counts = "X", data = NULL)
 
 # scBridge output tables
-# rel = fread("../../results/scBridge/output/scbridge_reliability.csv")
-# pred = fread("../../results/scBridge/output/scbridge_predictions.csv", header = TRUE)
+rel = fread("../../results/scBridge/output/Bartosovic_GFPsorted-scbridge_reliability.csv")
+pred = fread("../../results/scBridge/output/Bartosovic_GFPsorted-scbridge_predictions.csv", header = TRUE)
 
 scbr_rna@meta.data = scbr_rna@meta.data %>%
   mutate(CellType = str_replace_all(CellType, pattern = "Astrocytes", replacement = "AST")) %>%
@@ -169,7 +176,7 @@ scbr_g4_pred = DimPlot(
 scbr_g4_pred
 
 # scBridge reliability
-rel = FeaturePlot(object = scbr_g4,
+scbr_rel = FeaturePlot(object = scbr_g4,
                   features = 'Reliability',
                   raster = FALSE) +
   scale_color_viridis() +
@@ -184,7 +191,7 @@ rel = FeaturePlot(object = scbr_g4,
     axis.text.x = element_text(size = 25, color = "black"),
     axis.text.y = element_text(size = 25, color = "black")
   )
-rel
+scbr_rel
 
 # visualize Seurat prediction scores
 g4@meta.data = g4@meta.data %>% rownames_to_column(., var = "cell_id")
@@ -330,8 +337,7 @@ domain = DimPlot(
   pt.size = 2,
   label.size = 7,
   repel = TRUE,
-  raster = FALSE,
-  alpha = 0.1
+  raster = FALSE
 ) +
   xlim(-12, 25) +
   ylim(-20, 20) +
@@ -351,7 +357,7 @@ umaps = ggarrange(
   plotlist = list(
     scbr_rna_pred,
     scbr_g4_pred,
-    rel,
+    scbr_rel,
     domain,
     seurat_pred_score,
     seurat_pred
@@ -368,8 +374,9 @@ ggsave(
 )
 
 featureplots = list()
-genes = c("Pygb", "Pitpnc1", "Gpam", "Nwd1")
+genes = c("Tnik", "Pitpnc1", "Pbx1", "Nwd1")
 for (gene in genes) {
+  print(gene)
   plot = FeaturePlot(
     object = scbr_g4,
     features = gene,
@@ -406,13 +413,13 @@ ggsave(
 )
 
 featureplots_rna = list()
-genes = c("Pygb", "Pitpnc1", "Gpam", "Nwd1")
+genes = c("Tnik", "Pitpnc1", "Pbx1", "Nwd1")
 for (gene in genes) {
   plot = FeaturePlot(
     object = scbr_rna,
     features = gene,
     order = FALSE,
-    raster = TRUE,
+    raster = FALSE,
     reduction = "X_umap",
     pt.size = 2
   ) +
@@ -634,8 +641,8 @@ unsorted_int_preds = meta %>%
       TRUE ~ as.character(Prediction)
     )
   ) %>%
-  group_by(Prediction) %>% count() %>%
-  rename("count" = n) %>%
+  group_by(Prediction) %>% dplyr::count() %>%
+  dplyr::rename("count" = n) %>%
   mutate(log_count = log2(count))
 
 # visualizing the predicted cell types of unsorted cluster 1
@@ -655,3 +662,115 @@ ggsave(
   height = 6,
   device = "pdf"
 )
+
+# cluster overlaps (overlap score heatmaps)
+# scBridge clusters - Seurat clusters
+# scBridge integration
+col_fun = colorRamp2(c(0, 0.25, 0.5), c("#452258", "#679b81", "#f0e527"))
+
+meta = g4@meta.data %>%
+  left_join(., rel, c("cell_id" = "V1")) %>% dplyr::rename(scBridge_reliability = "Reliability") %>%
+  left_join(., pred, c("cell_id" = "V1")) %>% dplyr::rename(scBridge_prediction = "Prediction") %>%
+  filter(scBridge_reliability > 0.9) %>% dplyr::filter(scBridge_prediction != "Novel (Most Unreliable)") %>%
+  dplyr::filter(pred_max_score > 0.5) %>%
+  mutate(
+    scBridge_prediction = str_replace_all(
+      scBridge_prediction,
+      pattern = "Astrocytes",
+      replacement = "AST"
+    )
+  ) %>%
+  mutate(
+    scBridge_prediction = str_replace_all(
+      scBridge_prediction,
+      pattern = "Oligodendrocytes",
+      replacement = "MOL"
+    )
+  ) %>%
+  mutate(pred_cell_type = str_replace_all(pred_cell_type, pattern = "Astrocytes", replacement = "AST")) %>%
+  mutate(pred_cell_type = str_replace_all(pred_cell_type, pattern = "Oligodendrocytes", replacement = "MOL"))
+
+ident2seurat = data.frame(idents = rownames(meta), rna_label = meta$pred_cell_type)
+ident2seurat = ident2seurat[complete.cases(ident2seurat), ]
+
+ident2sc_br = data.frame(idents = rownames(meta), rna_label = meta$scBridge_prediction)
+ident2sc_br = ident2sc_br[complete.cases(ident2sc_br), ]
+
+ovlpScore.df = cal_ovlpScore(ident2seurat, ident2sc_br)
+
+mapSubclass = ovlpScore.df
+colnames(mapSubclass) <- c("cell_type", "seurat_cluster", "ovlpScore")
+mapSubclass = dcast(mapSubclass, cell_type~seurat_cluster, value.var = "ovlpScore", 
+                    fun.aggregate = identity, fill = 0)
+rows = mapSubclass$cell_type
+mapSubclass = mapSubclass[,-1]
+rownames(mapSubclass) = rows
+
+pdf(
+  file = glue("{result_folder}scBridge_Seurat_overlap_score_hm.pdf"),
+  width = 6,
+  height = 5
+)
+overlap_hm_scbr_seurat = Heatmap(
+  mapSubclass,
+  name = "overlap score",
+  clustering_distance_rows = "pearson",
+  col = col_fun,
+  row_title = "Seurat prediction (pred. score > 0.5)",
+  row_title_side = "right",
+  column_title = "scBridge prediction",
+  column_title_side = "bottom",
+  show_row_names = TRUE,
+  rect_gp = gpar(col = "black", lwd = 1),
+  cluster_columns = FALSE,
+  cluster_rows = FALSE,
+  width = unit(7, "cm"),
+  height = unit(3, "cm"),
+  column_names_rot = 90
+)
+overlap_hm_scbr_seurat
+dev.off()
+
+# scBridge clusters
+# scBridge integration
+ident2rna = data.frame(idents = rownames(meta), rna_label = meta$scBridge_prediction)
+ident2rna = ident2rna[complete.cases(ident2rna), ]
+ident2rna = ident2rna[which(ident2rna$rna_label != "Novel (Most Unreliable)"), ]
+
+ident2g4 = data.frame(idents = rownames(meta), rna_label = as.character(meta$seurat_clusters))
+ident2g4 = ident2g4[complete.cases(ident2g4), ]
+
+ovlpScore.df = cal_ovlpScore(ident2rna, ident2g4)
+
+mapSubclass = ovlpScore.df
+colnames(mapSubclass) <- c("cell_type", "seurat_cluster", "ovlpScore")
+mapSubclass = dcast(mapSubclass, cell_type~seurat_cluster, value.var = "ovlpScore", 
+                    fun.aggregate = identity, fill = 0)
+rows = mapSubclass$cell_type
+mapSubclass = mapSubclass[,-1]
+rownames(mapSubclass) = rows
+
+pdf(
+  file = glue("{result_folder}scBridge_overlap_score_hm.pdf"),
+  width = 6,
+  height = 4
+)
+overlap_hm_scbr = Heatmap(
+  mapSubclass,
+  name = "overlap score",
+  clustering_distance_rows = "pearson",
+  col = col_fun,
+  row_title = "scBridge prediction",
+  row_title_side = "right",
+  column_title = "Seurat cluster",
+  column_title_side = "bottom",
+  show_row_names = TRUE,
+  rect_gp = gpar(col = "black", lwd = 1),
+  cluster_columns = TRUE,
+  cluster_rows = TRUE,
+  width = unit(7, "cm"),
+  height = unit(7, "cm"),
+  column_names_rot = 0
+)
+overlap_hm_scbr
+dev.off()

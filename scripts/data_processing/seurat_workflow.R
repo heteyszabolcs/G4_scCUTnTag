@@ -41,9 +41,9 @@ args = parser$parse_args()
 if (all(sapply(args, is.null))) {
   print("Script is running without sbatch.")
   res = 0.1
-  workdir = "../../results/Seurat/mESC_MEF/"
-  cell_ranger = "../../data/CellRanger/mESC_MEF/"
-  sample = "mESC_MEF"
+  workdir = "../../results/Seurat/unsorted_mousebrain/res0.1/"
+  cell_ranger = "../../data/CellRanger/unsorted_mousebrain/"
+  sample = "unsorted"
 } else {
   print("Script is running on cluster via bash script.")
   cell_ranger = args$cell_ranger_output
@@ -300,10 +300,10 @@ if (res == 0.1 & sample == "mESC_MEF") {
   dim_res0.1 = DimPlot(
     object = seurat,
     label = TRUE,
-    pt.size = 2,
+    #pt.size = 2,
     label.size = 7,
     repel = TRUE,
-    raster = TRUE
+    raster = FALSE
   ) +
     xlim(-10, 10) +
     ylim(-10, 10) +
@@ -339,13 +339,13 @@ if (res == 0.1 & sample == "unsorted") {
   dim_res0.1 = DimPlot(
     object = seurat,
     label = TRUE,
-    pt.size = 2,
+    pt.size = 1,
     label.size = 7,
     repel = TRUE,
-    raster = TRUE
+    raster = FALSE
   ) +
-    xlim(-10, 10) +
-    ylim(-10, 10) +
+    xlim(-5, 5) +
+    ylim(-5, 5) +
     scale_colour_manual(values = cols, breaks = c("0", "1"), labels = c("cluster 0", "cluster 1")) +
     ggtitle("") +
     theme(
@@ -374,7 +374,7 @@ if (res == 0.1 & sample == "unsorted") {
   dim = DimPlot(
     object = seurat,
     label = TRUE,
-    pt.size = 1,
+    #pt.size = 1,
     label.size = 7,
     repel = TRUE,
     order = c(0, 1, 2, 3)
@@ -511,7 +511,7 @@ ga_markers_hm = DoHeatmap(
   object = seurat,
   features = ga_markers_top$gene,
   slot = 'data',
-  raster = TRUE,
+  raster = FALSE,
   assay = "GA"
 ) +
   scale_fill_gradient2(low = "white",
