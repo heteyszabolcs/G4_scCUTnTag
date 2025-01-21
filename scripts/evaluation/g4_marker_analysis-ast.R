@@ -41,11 +41,11 @@ markers = markers %>%
   mutate(cluster = str_replace_all(cluster, pattern = "Oligodendrocytes", replacement = "MOL"))
 
 # scBridge outputs
-scbr_rna = readH5AD("../../results/scBridge/output/Bartosovic_scRNA-Seq-integrated.h5ad")
+scbr_rna = readH5AD("../../results/scBridge/output/scRNA_Seq-Bartosovic-integrated.h5ad")
 scbr_rna = as.Seurat(scbr_rna, counts = "X", data = NULL)
 
-rel = fread("../../results/scBridge/output/scbridge_reliability.csv")
-pred = fread("../../results/scBridge/output/scbridge_predictions.csv",
+rel = fread("../../results/scBridge/output/Bartosovic_GFPsorted-scbridge_reliability.csv")
+pred = fread("../../results/scBridge/output/Bartosovic_GFPsorted-scbridge_predictions.csv",
              header = TRUE)
 pred = pred %>%
   mutate(Prediction = str_replace_all(Prediction, pattern = "Astrocytes", replacement = "AST")) %>%

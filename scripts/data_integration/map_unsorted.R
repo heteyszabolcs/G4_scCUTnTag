@@ -23,6 +23,14 @@ rna = "../../data/scRNA-Seq/scRNA_Seq-Zeisel_et_al-neuron.Rds"
 unsorted = readRDS("../../results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object.Rds")
 sorted = readRDS("../../results/Seurat/GFP_sorted_mousebrain/res0.8/outputs/Seurat_object.Rds")
 
+# add labels to sorted cluster
+sorted@meta.data = sorted@meta.data %>% 
+  mutate(seurat_clusters = case_when(seurat_clusters == "0" ~ "OEC/OPC",
+                                     seurat_clusters == "1" ~ "OPC",
+                                     seurat_clusters == "2" ~ "AST",
+                                     seurat_clusters == "3" ~ "OEC"))
+
+
 rna = readRDS(rna)
 all.genes = rownames(rna)
 rna = NormalizeData(rna,
@@ -221,7 +229,7 @@ ggsave(
 )
 
 set3 = brewer.pal(4, "Set3")
-cols = c("0"=set3[4], "1"=set3[3], "2"=set3[2], "3"=set3[1])
+cols = c("OEC/OPC"=set3[4], "OPC"=set3[3], "AST"=set3[2], "OEC"=set3[1])
 p2_2 = DimPlot(
   sorted,
   reduction = "umap",
@@ -324,7 +332,7 @@ ggplot(meta,
     plot.title = element_text(size = 10),
     axis.title.y = element_text(size = 20, color = "black"),
     axis.title.x = element_text(size = 20, color = "black"),
-    axis.text.x = element_text(size = 20, color = "black"),
+    axis.text.x = element_text(size = 20, color = "black", angle = 45, vjust = 0.75, hjust = 0.5),
     axis.text.y = element_text(size = 20, color = "black")
   ) + 
   stat_compare_means(label.y = 1, label = "p.signif")
@@ -336,10 +344,63 @@ ggsave(
   width = 7,
   height = 6
 )
-  
 
-
-
-
-
-
+# merging of sorted and unsorted G4 scCUT&Tag datasets
+# set assays
+# unsorted = readRDS("../../results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object.Rds")
+# sorted = readRDS("../../results/Seurat/GFP_sorted_mousebrain/res0.8/outputs/Seurat_object.Rds")
+# 
+# DefaultAssay(sorted) = "GA"
+# DefaultAssay(unsorted) = "GA"
+# 
+# sorted@meta.data$data_type = "sorted G4 scCnT"
+# sorted@meta.data = sorted@meta.data %>% 
+#   mutate(custom_col = "sorted clusters")
+# 
+# 
+# unsorted@meta.data$data_type = "unsorted G4 scCnT"
+# unsorted@meta.data = unsorted@meta.data %>% mutate(
+#   seurat_clusters =
+#     case_when(
+#       seurat_clusters == "0" ~ "cluster 0 (unsorted)",
+#       seurat_clusters == "1" ~ "cluster 1 (unsorted)"
+#     )
+# ) %>% 
+#   mutate(custom_col = seurat_clusters)
+# 
+# unsorted = FindVariableFeatures(unsorted, selection.method = "vst", nfeatures = 2000)
+# genes.use = VariableFeatures(unsorted)
+# 
+# coembed = merge(x = sorted, y = unsorted)
+# coembed = ScaleData(coembed, features = genes.use, do.scale = FALSE)
+# coembed = RunPCA(coembed, features = genes.use, verbose = FALSE)
+# coembed = RunUMAP(coembed, dims = 1:5)
+# 
+# cols = c("cluster 0 (unsorted)" = "#fc9272", "cluster 1 (unsorted)" = "#9ecae1",
+#          "sorted clusters" = "#31a354")
+# coembed_cells = DimPlot(
+#   coembed,
+#   reduction = "umap",
+#   group.by = "custom_col",
+#   pt.size = 1,
+#   label = FALSE,
+#   label.size = 3,
+#   repel = TRUE,
+#   cols = cols
+# ) +
+#   labs(
+#     title = "sorted + unsorted merged UMAP",
+#     x = "UMAP_1",
+#     y = "UMAP_2",
+#     fill = NULL,
+#     cols = cols
+#   ) 
+# coembed_cells
+# 
+# ggsave(
+#   glue("{result_folder}merged-sorted_unsorted.pdf"),
+#   plot = coembed_cells,
+#   device = "pdf",
+#   width = 7,
+#   height = 6
+# )

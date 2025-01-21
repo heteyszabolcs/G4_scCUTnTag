@@ -92,86 +92,39 @@ ggsave(
 )
 
 ## unsorted brain scCut&Tag ###
-# unsorted_cluster0 = fread("../../results/Seurat/unsorted_mousebrain/res0.1/cluster_spec_peaks/0_peaks.narrowPeak")
-# unsorted_cluster0$type = "cluster0"
-# unsorted_cluster0 = GRanges(
-#   seqnames = unsorted_cluster0$V1,
-#   ranges = IRanges(
-#     start = unsorted_cluster0$V2,
-#     end = unsorted_cluster0$V3,
-#     names = unsorted_cluster0$type,
-#   )
-# )
-# 
-# unsorted_cluster1 = fread("../../results/Seurat/unsorted_mousebrain/res0.1/cluster_spec_peaks/1_peaks.narrowPeak")
-# unsorted_cluster1$type = "cluster1"
-# unsorted_cluster1 = GRanges(
-#   seqnames = unsorted_cluster1$V1,
-#   ranges = IRanges(
-#     start = unsorted_cluster1$V2,
-#     end = unsorted_cluster1$V3,
-#     names = unsorted_cluster1$type,
-#   )
-# )
-# 
-# npc = fread("../../data/bulk_CUTnTag/bulk_CnT_G4_NPC_mm10.bed")
-# npc$type = "NPC"
-# npc = GRanges(
-#   seqnames = npc$V1,
-#   ranges = IRanges(
-#     start = npc$V2,
-#     end = npc$V3,
-#     names = npc$type,
-#   )
-# )
-# 
-# neuron = fread("../../data/bulk_CUTnTag/bulk_CnT_G4_neuron_mm10.bed")
-# neuron$type = "neuron"
-# neuron = GRanges(
-#   seqnames = neuron$V1,
-#   ranges = IRanges(
-#     start = neuron$V2,
-#     end = neuron$V3,
-#     names = neuron$type,
-#   )
-# )
-# 
-# npc_upset_input = upset_input(peak_set_1 = unsorted_cluster0, peak_set_2 = unsorted_cluster1, bulk_set = npc)
-# npc_upset_plot = plot_freq_intersect(
-#   npc_upset_input,
-#   .by = "group",
-#   .levels = c("cluster 0", "cluster 1", "bulk NPC"),
-#   .split = "category",
-#   .color = npc_col,
-#   top_n = 10
-# )
-# npc_upset_plot
-# 
-# neuron_upset_input = upset_input(peak_set_1 = unsorted_cluster0, peak_set_2 = unsorted_cluster1, bulk_set = neuron)
-# neuron_upset_plot = plot_freq_intersect(
-#   neuron_upset_input,
-#   .by = "group",
-#   .levels = c("cluster 0", "cluster 1", "bulk neuron"),
-#   .split = "category",
-#   .color = neuron_col,
-#   top_n = 10
-# )
-# neuron_upset_plot
-# 
-# ggsave(
-#   glue("{result_folder}upset_plot-unsorted_brain-bulkNPC.pdf"),
-#   plot = npc_upset_plot,
-#   width = 6,
-#   height = 6,
-#   dpi = 500,
-# )
-# ggsave(
-#   glue("{result_folder}upset_plot-unsorted_brain-bulkNeuron.pdf"),
-#   plot = neuron_upset_plot,
-#   width = 6,
-#   height = 6,
-#   device = "pdf"
-# )
+unsorted_cluster0 = fread("../../results/Seurat/unsorted_mousebrain/res0.1/cluster_spec_peaks/0_peaks.narrowPeak")
+unsorted_cluster0$type = "cluster0"
+unsorted_cluster0 = GRanges(
+  seqnames = unsorted_cluster0$V1,
+  ranges = IRanges(
+    start = unsorted_cluster0$V2,
+    end = unsorted_cluster0$V3,
+    names = unsorted_cluster0$type,
+  )
+)
+
+unsorted_cluster1 = fread("../../results/Seurat/unsorted_mousebrain/res0.1/cluster_spec_peaks/1_peaks.narrowPeak")
+unsorted_cluster1$type = "cluster0"
+unsorted_cluster1 = GRanges(
+  seqnames = unsorted_cluster1$V1,
+  ranges = IRanges(
+    start = unsorted_cluster1$V2,
+    end = unsorted_cluster1$V3,
+    names = unsorted_cluster1$type,
+  )
+)
+
+## sorted brain scCut&Tag ###
+sorted = fread("../../data/CellRanger/GFP_sorted_mousebrain/peaks.bed")
+sorted$type = "GFP+ G4 scCUT&Tag"
+sorted = GRanges(
+  seqnames = sorted$V1,
+  ranges = IRanges(
+    start = sorted$V2,
+    end = sorted$V3,
+    names = sorted$type,
+  )
+)
 
 ## Venn diagrams
 # mESC-MEF
@@ -203,6 +156,13 @@ ggsave(
   device = "pdf"
 )
 
+# unsorted vs. sorted
+unsorted_sorted_venn = plot_euler(
+  list(sorted, unsorted_cluster0, unsorted_cluster1),
+  ignore.strand = TRUE,
+  fills = c("#ffffff", "#addd8e", "#bcbcbc"),
+  names = c("sorted", "unsorted cl. 0", "cl. 1")
+)
 
 ### jaccard indexes
 # mESC-MEF 
