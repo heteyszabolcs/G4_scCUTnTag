@@ -114,7 +114,7 @@ terms = rbind(unique_cl0_terms, unique_cl1_terms) %>%
   dplyr::filter(
     str_detect(
       Term,
-      "nervous|neural|oligodendrocyte|microglia|neuron|axon|synaptic|synapsis"
+      "nervous|neural|oligodendrocyte|microglia|neuron|axon|synaptic|synapsis|myelination|glial|glia"
     )
   )
 

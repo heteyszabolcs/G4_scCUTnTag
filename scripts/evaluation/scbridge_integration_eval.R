@@ -454,6 +454,24 @@ ggsave(
 )
 
 ### scBridge integration of unsorted G4 scCUT&Tag (cluster 1) and Zeisel neuron scRNA-Seq ###
+glue(
+  "number of reliable preds: \n {as.character(scbr_g4_unsorted_cl1@meta.data %>% 
+  dplyr::filter(Reliability > 0.90) %>% rownames %>% length)}/{as.character(dim(scbr_g4_unsorted_cl1@meta.data)[1])}"
+)
+
+glue(
+  "Av. reliability: {as.character(scbr_g4_unsorted_cl1@meta.data %>% pull('Reliability') %>%
+  mean %>% round(2))}"
+)
+
+glue(
+  "Number of the unreliable predictions:
+  {as.character(scbr_g4_unsorted_cl1@meta.data %>% 
+  dplyr::filter(str_detect(Prediction, 'Unreliable')) %>%
+  rownames %>% length)}"
+)
+
+
 # cell types
 cols2 = c(
   'amygdala' = "#fc9272",

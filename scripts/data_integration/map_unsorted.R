@@ -345,6 +345,10 @@ ggsave(
   height = 6
 )
 
+meta %>% dplyr::filter(predicted.seurat_clusters == 0) %>% pull(predicted.seurat_clusters.score) %>% mean %>% round(2)
+meta %>% dplyr::filter(predicted.seurat_clusters == 1) %>% pull(predicted.seurat_clusters.score) %>% mean %>% round(2)
+
+
 # merging of sorted and unsorted G4 scCUT&Tag datasets
 # set assays
 # unsorted = readRDS("../../results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object.Rds")
