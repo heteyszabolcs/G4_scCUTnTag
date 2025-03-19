@@ -107,11 +107,12 @@ qc = function(filtered_peak_mat = "../../data/CellRanger/unsorted_mousebrain/fil
     features = 'TSS.enrichment',
     group.by = "seurat_clusters",
     pt.size = 0.1,
+    alpha = 0.3,
     ncol = 1,
     cols = if (res != 0.1)
       brewer.pal(cluster_numb, "Set3")
     else
-      c("#addd8e", "#bdbdbd", "#646a6d")
+      c("#9ecae1", "#fc9272", "#646a6d")
   ) +
     xlab("cluster") +
     ylab("TSS enrichment") +
@@ -132,11 +133,12 @@ qc = function(filtered_peak_mat = "../../data/CellRanger/unsorted_mousebrain/fil
     features = 'nucleosome_signal',
     group.by = "seurat_clusters",
     pt.size = 0.1,
+    alpha = 0.3,
     ncol = 1,
     cols = if (res != 0.1)
       brewer.pal(cluster_numb, "Set3")
     else
-      c("#addd8e", "#bdbdbd", "#646a6d")
+      c("#9ecae1", "#fc9272", "#646a6d")
   ) +
     xlab("cluster") +
     ylab("nucleosome signal") +
@@ -157,11 +159,12 @@ qc = function(filtered_peak_mat = "../../data/CellRanger/unsorted_mousebrain/fil
     features = 'pct_reads_in_peaks',
     group.by = "seurat_clusters",
     pt.size = 0.1,
+    alpha = 0.3,
     ncol = 1,
     cols = if (res != 0.1)
       brewer.pal(cluster_numb, "Set3")
     else
-      c("#addd8e", "#bdbdbd", "#646a6d")
+      c("#9ecae1", "#fc9272", "#646a6d")
   ) +
     xlab("cluster") +
     ylab("pct. of reads in peaks") +
@@ -184,11 +187,12 @@ qc = function(filtered_peak_mat = "../../data/CellRanger/unsorted_mousebrain/fil
     group.by = "seurat_clusters",
     features = "log10_nFeature_peaks",
     pt.size = 0.1,
+    alpha = 0.3,
     ncol = 1,
     cols = if (res != 0.1)
       brewer.pal(cluster_numb, "Set3")
     else
-      c("#addd8e", "#bdbdbd", "#646a6d")
+      c("#9ecae1", "#fc9272", "#646a6d")
   ) +
     xlab("cluster") +
     ylab("number of detected genes [log10]") +
@@ -211,11 +215,12 @@ qc = function(filtered_peak_mat = "../../data/CellRanger/unsorted_mousebrain/fil
     group.by = "seurat_clusters",
     features = "log10_TSS_fragments",
     pt.size = 0.1,
+    alpha = 0.3,
     ncol = 1,
     cols = if (res != 0.1)
       brewer.pal(cluster_numb, "Set3")
     else
-      c("#addd8e", "#bdbdbd", "#646a6d")
+      c("#9ecae1", "#fc9272", "#646a6d")
   ) +
     xlab("cluster") +
     ylab("TSS fragment [log10]") +
@@ -237,11 +242,12 @@ qc = function(filtered_peak_mat = "../../data/CellRanger/unsorted_mousebrain/fil
     group.by = "seurat_clusters",
     features = "log10_mitochondrial",
     pt.size = 0.1,
+    alpha = 0.3,
     ncol = 1,
     cols = if (res != 0.1)
       brewer.pal(cluster_numb, "Set3")
     else
-      c("#addd8e", "#bdbdbd", "#646a6d")
+      c("#9ecae1", "#fc9272", "#646a6d")
   ) +
     xlab("cluster") +
     ylab("mitochondrial fragment [log10]") +
@@ -263,11 +269,12 @@ qc = function(filtered_peak_mat = "../../data/CellRanger/unsorted_mousebrain/fil
     group.by = "seurat_clusters",
     features = "log10_nCount_peaks",
     pt.size = 0.1,
+    alpha = 0.3,
     ncol = 1,
     cols = if (res != 0.1)
       brewer.pal(cluster_numb, "Set3")
     else
-      c("#addd8e", "#bdbdbd", "#646a6d")
+      c("#9ecae1", "#fc9272", "#646a6d")
   ) +
     xlab("cluster") +
     ylab("reads per cell [log10]") +

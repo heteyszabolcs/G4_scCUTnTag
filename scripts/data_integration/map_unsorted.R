@@ -20,6 +20,7 @@ result_folder = "../../results/Seurat/unsorted_mousebrain/res0.1/integration/plo
 
 # Seurat objects
 rna = "../../data/scRNA-Seq/scRNA_Seq-Zeisel_et_al-neuron.Rds"
+bartosovic_rna = "../../data/scRNA-Seq/scRNA_Seq-mouse_brain.Rds"
 unsorted = readRDS("../../results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object.Rds")
 sorted = readRDS("../../results/Seurat/GFP_sorted_mousebrain/res0.8/outputs/Seurat_object.Rds")
 
@@ -41,6 +42,17 @@ rna = ScaleData(rna, features = all.genes)
 rna = RunPCA(rna, features = VariableFeatures(object = rna))
 rna = RunUMAP(rna, dims = 1:20, return.model = TRUE)
 
+bartosovic_rna = readRDS(bartosovic_rna)
+all.genes = rownames(bartosovic_rna)
+bartosovic_rna = NormalizeData(bartosovic_rna,
+                    normalization.method = "LogNormalize",
+                    scale.factor = 10000)
+bartosovic_rna = FindVariableFeatures(bartosovic_rna, selection.method = "vst", nfeatures = 2000)
+bartosovic_rna = ScaleData(bartosovic_rna, features = all.genes)
+bartosovic_rna = RunPCA(bartosovic_rna, features = VariableFeatures(object = bartosovic_rna))
+bartosovic_rna = RunUMAP(bartosovic_rna, dims = 1:20, return.model = TRUE)
+
+# integration of unsorted data with neuron scRNA-Seq
 # set assays
 DefaultAssay(unsorted) = "GA"
 DefaultAssay(rna) = "RNA"
@@ -56,7 +68,7 @@ anchors = FindTransferAnchors(
   features = common.genes
 )
 
-unsorted = MapQuery(
+unsorted_neuron = MapQuery(
   anchorset = anchors,
   query = unsorted,
   reference = rna,
@@ -65,16 +77,16 @@ unsorted = MapQuery(
   reduction.model = "umap"
 )
 
-p1 = DimPlot(unsorted, reduction = "ref.umap", group.by = "predicted.cell_type", label = TRUE, label.size = 3, repel = TRUE)
-p2 = DimPlot(unsorted, reduction = "ref.umap", group.by = "seurat_clusters", label = TRUE, label.size = 3, repel = TRUE)
+p1 = DimPlot(unsorted_neuron, reduction = "ref.umap", group.by = "predicted.cell_type", label = TRUE, label.size = 3, repel = TRUE)
+p2 = DimPlot(unsorted_neuron, reduction = "ref.umap", group.by = "seurat_clusters", label = TRUE, label.size = 3, repel = TRUE)
 p3 = DimPlot(rna, reduction = "umap", group.by = "cell_type", label = TRUE, label.size = 3, repel = TRUE)
-p4 = FeaturePlot(unsorted, reduction = "ref.umap", features = "predicted.cell_type.score", label = FALSE, label.size = 3, repel = TRUE)
+p4 = FeaturePlot(unsorted_neuron, reduction = "ref.umap", features = "predicted.cell_type.score", label = FALSE, label.size = 3, repel = TRUE)
 p4
 
 ps = p1 + p2 + p3 + p4
 ps
 
-meta = unsorted@meta.data
+meta = unsorted_neuron@meta.data
 high_pred = meta %>% dplyr::filter(predicted.cell_type.score > 0.75)
 
 ggplot(high_pred, aes(y=predicted.cell_type.score, x=seurat_clusters, fill=seurat_clusters)) + 
@@ -88,7 +100,7 @@ ggplot(meta, aes(x=seurat_clusters, y=predicted.cell_type.score, fill=seurat_clu
   geom_boxplot() 
 
 # map only unsorted cluster 1
-unsorted_cluster1 = subset(x = unsorted, subset = seurat_clusters == "1")
+unsorted_cluster1 = subset(x = unsorted_neuron, subset = seurat_clusters == "1")
 saveRDS(unsorted_cluster1, "../../results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object_cl1.Rds")
 
 # set assays
@@ -133,6 +145,35 @@ ggplot(high_pred, aes(y=predicted.cell_type.score, x=predicted.cell_type, fill=s
 
 ggplot(meta, aes(x=predicted.cell_type, y=predicted.cell_type.score, fill=seurat_clusters)) + 
   geom_boxplot() 
+
+# integration of unsorted data with Bartosovic scRNA-Seq
+# set assays
+DefaultAssay(unsorted) = "GA"
+DefaultAssay(bartosovic_rna) = "RNA"
+
+common.genes = intersect(rownames(bartosovic_rna), rownames(unsorted))
+anchors = FindTransferAnchors(
+  reference = bartosovic_rna,
+  query = unsorted,
+  reduction = 'cca',
+  query.assay = 'GA',
+  reference.assay = 'RNA',
+  k.filter = NA,
+  features = common.genes
+)
+
+unsorted_bartosovic = MapQuery(
+  anchorset = anchors,
+  query = unsorted,
+  reference = bartosovic_rna,
+  refdata = list(cell_type = "cell_type"),
+  reference.reduction = "umap", 
+  reduction.model = "umap"
+)
+
+# map only unsorted cluster 1
+unsorted_cluster0 = subset(x = unsorted_bartosovic, subset = seurat_clusters == "0")
+saveRDS(unsorted_cluster0, "../../results/Seurat/unsorted_mousebrain/res0.1/outputs/Seurat_object_cl0.Rds")
 
 # mapping sorted G4 scCUT&Tag to unsorted G4 scCUT&Tag
 unsorted = RunTFIDF(unsorted)

@@ -177,6 +177,7 @@ sorted@meta.data = meta
 
 genes = markers %>% dplyr::filter(cluster == "AST") %>% arrange(desc(avg_log2FC)) %>% top_n(6, wt = avg_log2FC) %>% pull(gene)
 set3 = brewer.pal(9, "Set3")
+pastel1 = brewer.pal(8, "Pastel1")
 cols = c("AST" = set3[1], "non-AST" = set3[9])
 
 plots = list()
@@ -327,7 +328,7 @@ volc_input = volc_input %>% mutate(
 labels = volc_input %>% pull(sign_label)
 
 cols = c(
-  "up" = brewer.pal(9, "Set3")[1],
+  "up" = pastel1[1],
   "down" = brewer.pal(9, "Set3")[9],
   "unaltered" = "white"
 )

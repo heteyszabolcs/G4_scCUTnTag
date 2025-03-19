@@ -77,16 +77,16 @@ glue(
 
 ### scBridge integration of sorted G4 scCUT&Tag and Bartosovic scRNA-Seq ###
 # Seurat UMAPs
-set3 = brewer.pal(8, "Set3")
+pastel1 = brewer.pal(8, "Pastel1")
 cols = c(
-  'AST' = set3[1],
-  'COP-NFOL' = set3[2],
-  'MOL' = set3[3],
-  'OPC' = set3[4],
-  'OEC' = set3[5],
-  'VEC' = set3[6],
-  'VLMC' = set3[7],
-  'Pericytes' = set3[8]
+  'AST' = pastel1[1],
+  'COP-NFOL' = pastel1[2],
+  'MOL' = pastel1[3],
+  'OPC' = pastel1[4],
+  'OEC' = pastel1[5],
+  'VEC' = pastel1[6],
+  'VLMC' = pastel1[7],
+  'Pericytes' = pastel1[8]
 )
 
 # cell types
@@ -129,14 +129,14 @@ scbr_g4@meta.data = scbr_g4@meta.data %>%
   mutate(Prediction = as.factor(Prediction))
 
 cols = c(
-  'AST' = set3[1],
-  'COP-NFOL' = set3[2],
-  'MOL' = set3[3],
-  'OPC' = set3[4],
-  'OEC' = set3[5],
-  'VEC' = set3[6],
-  'VLMC' = set3[7],
-  'Pericytes' = set3[8],
+  'AST' = pastel1[1],
+  'COP-NFOL' = pastel1[2],
+  'MOL' = pastel1[3],
+  'OPC' = pastel1[4],
+  'OEC' = pastel1[5],
+  'VEC' = pastel1[6],
+  'VLMC' = pastel1[7],
+  'Pericytes' = pastel1[8],
   'unreliable' = '#f0f0f0'
 )
 
@@ -244,14 +244,14 @@ scbr_g4@meta.data = scbr_g4@meta.data %>%
   )
 
 cols = c(
-  'AST' = set3[1],
-  'COP-NFOL' = set3[2],
-  'MOL' = set3[3],
-  'OPC' = set3[4],
-  'OEC' = set3[5],
-  'VEC' = set3[6],
-  'VLMC' = set3[7],
-  'Pericytes' = set3[8]
+  'AST' = pastel1[1],
+  'COP-NFOL' = pastel1[2],
+  'MOL' = pastel1[3],
+  'OPC' = pastel1[4],
+  'OEC' = pastel1[5],
+  'VEC' = pastel1[6],
+  'VLMC' = pastel1[7],
+  'Pericytes' = pastel1[8]
 )
 
 seurat_pred = DimPlot(
@@ -288,8 +288,8 @@ seurat_pred = DimPlot(
 seurat_pred
 
 scbr_g4@meta.data = scbr_g4@meta.data %>% mutate(AST_status = ifelse(Prediction == "AST", "AST", "non-AST"))
-set3 = brewer.pal(9, "Set3")
-cols = c("AST" = set3[1], "non-AST" = set3[9])
+pastel1 = brewer.pal(9, "Pastel1")
+cols = c("AST" = pastel1[1], "non-AST" = pastel1[9])
 
 ast = DimPlot(
   object = scbr_g4,
@@ -342,7 +342,7 @@ domain = DimPlot(
   xlim(-12, 25) +
   ylim(-20, 20) +
   ggtitle("Modality") +
-  scale_fill_manual(values = c("#fc9272", "#a6bddb")) +
+  scale_color_manual(values = c("#fc9272", "#a6bddb")) +
   xlab("UMAP_1") +
   ylab("UMAP_2") +
   theme(
